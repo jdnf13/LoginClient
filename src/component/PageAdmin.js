@@ -19,13 +19,12 @@ const PageAdmin = () => {
     {field: 'descuento',filter: true}
   ];
 
-
  const cellClickedListener = useCallback( event => {
    document.getElementById('codigo').value = event.data.codigo
    document.getElementById('producto').value = event.data.producto
    document.getElementById('linea').value = event.data.linea
    document.getElementById('valor').value = event.data.valor
-   document.getElementById('promocion').value = event.data.promocion
+   document.getElementById('promocion').value = event.data.promocion === true ? 'Si' : 'No';
    document.getElementById('descuento').value = event.data.descuento
    idProduct = event.data._id
  }, []);
@@ -41,7 +40,7 @@ const PageAdmin = () => {
         let producto = document.getElementById('producto').value;
         let linea = document.getElementById('linea').value;
         let valor = document.getElementById('valor').value;
-        let promocion = document.getElementById('promocion').value;
+        let promocion = document.getElementById('promocion').value === 'Si' ? true : false;
         let descuento = document.getElementById('descuento').value;
         if(idProduct !== ''){
             let _id = idProduct;
@@ -65,7 +64,7 @@ const buttonListenerNew = useCallback( e => {
     let producto = document.getElementById('producto').value;
     let linea = document.getElementById('linea').value;
     let valor = document.getElementById('valor').value;
-    let promocion = document.getElementById('promocion').value;
+    let promocion = document.getElementById('promocion').value === 'Si' ? true : false;
     let descuento = document.getElementById('descuento').value;
     const requestOptions = {
         method: 'POST',
@@ -113,7 +112,7 @@ const resData = (data) => {
             document.getElementById('producto').value = ''
             document.getElementById('linea').value = ''
             document.getElementById('valor').value = ''
-            document.getElementById('promocion').value = ''
+            document.getElementById('promocion').value = 'No'
             document.getElementById('descuento').value = ''
         }
 
@@ -131,7 +130,7 @@ const resData = (data) => {
            columnDefs={columnDefs} 
            defaultColDef={true} 
            animateRows={true} 
-           //rowSelection='multiple' 
+           rowSelection='multiple' 
            onCellClicked={cellClickedListener} 
            />
      </div>
@@ -169,17 +168,20 @@ const resData = (data) => {
                 </Col>
             </FormGroup>
             <FormGroup row>
-                <Label for="promocion" sm={3} > Promoción </Label>
-                <Col sm={5}>
-                <Input id="promocion" name="Promoción" placeholder="Promoción" type="text"/>
-                </Col>
-            </FormGroup>  
-            <FormGroup row>
                 <Label for="descuento" sm={3} > Descuento </Label>
                 <Col sm={5}>
                 <Input id="descuento" name="Descuento" placeholder="Descuento" type="text"/>
                 </Col>
-            </FormGroup>        
+            </FormGroup> 
+            <FormGroup>
+                <Col sm={3} style={{marginLeft:'25.5%'}}>
+                <Label for="promocion" sm={3} style={{marginLeft:'0'}}> Promoción </Label>
+                <Input id="promocion" name="Promoción" type="select" >
+                    <option> Si </option> 
+                    <option> No </option>                
+                </Input>
+                </Col>
+            </FormGroup>       
             <FormGroup check row >
                 <Col sm={{ offset: 1, size: 5 }} >
                 <Button onClick={buttonListener} color="danger"> Modificar </Button>

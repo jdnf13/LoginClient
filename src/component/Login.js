@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button,Form, FormGroup, Label, Col, Input } from 'reactstrap';
-//import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 
@@ -53,8 +52,7 @@ function Login() {
             </FormGroup>          
             <FormGroup check row >
                 <Col sm={{ offset: 1, size: 5 }} >
-                <Button onClick={onClickButton} color="success"> Submit </Button>
-                {/*<Link to="/about">About</Link>*/}
+                <Button onClick={onClickButton} color="success"> Ingresar </Button>
                 </Col>
             </FormGroup>
         </Form>
