@@ -1,11 +1,19 @@
-import React, { Fragment } /*{ useState, useEffect }*/ from 'react';
+import React, { Fragment, useCallback } /*{ useState, useEffect }*/ from 'react';
 import { useNavigate } from "react-router-dom";
+import { Button, Col} from 'reactstrap';
 import PageAdmin from './PageAdmin';
+import PageVisitor from './PageVisitor';
 
 
 export default function PageUser(props) {
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  const onClickLogout = useCallback( e => {
+    e.preventDefault();
+    localStorage.removeItem('isLogin');
+    navigate("/");
+}, []);
 
     if (localStorage.getItem('isLogin')) {
         let dataUser = JSON.parse(localStorage.getItem('isLogin'));
@@ -13,13 +21,22 @@ export default function PageUser(props) {
         if(dataUser.rol === 'admin'){
             return(
                 <Fragment>
-                    <h1>Administrador</h1>
+                    <Col sm={{ offset: 10, size: 2 }} >
+                        <Button onClick={onClickLogout}>Cerrar Sesión</Button>
+                    </Col>
+                    <h1>Hola {dataUser.name}, ingresaste como {dataUser.rol}</h1>
                     <PageAdmin/>
                 </Fragment>
             );
         }else{
             return(
-                <div>Pagina Usuario Visitante</div>
+                <Fragment>
+                    <Col sm={{ offset: 10, size: 2 }} >
+                        <Button onClick={onClickLogout}>Cerrar Sesión</Button>
+                    </Col>
+                    <h1>Hola {dataUser.name}, ingresaste como {dataUser.rol}</h1>
+                    <PageVisitor/>
+                </Fragment>
             );
         }
     }else{

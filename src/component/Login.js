@@ -35,7 +35,9 @@ function Login() {
     }
 
     return(
-        <div>
+        <div>                
+        <h1>Bienvenido! Ingresa tus datos</h1>
+        <hr></hr>
         <Form>
             <FormGroup row>
                 <Label for="exampleEmail" sm={3} > Email </Label>

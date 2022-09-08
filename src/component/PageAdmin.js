@@ -1,33 +1,26 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback} from 'react';
-import { render } from 'react-dom';
+import React, { useState, useRef, useEffect, useCallback} from 'react';
+//import { render } from 'react-dom';
 import { Button,Form, FormGroup, Label, Col, Input } from 'reactstrap';
 import { AgGridReact } from 'ag-grid-react'; // the AG Grid React Component
-
 import 'ag-grid-community/styles/ag-grid.css'; // Core grid CSS, always needed
-import 'ag-grid-community/styles/ag-theme-alpine.css'; // Optional theme CSS
+import 'ag-grid-community/styles/ag-theme-alpine.css'; //theme CSS
 
 const PageAdmin = () => {
 
- const gridRef = useRef(); // Optional - for accessing Grid's API
- const [rowData, setRowData] = useState(); // Set rowData to Array of Objects, one Object per Row
+ const gridRef = useRef(); 
+ const [rowData, setRowData] = useState(); 
  let idProduct = '';
- // Each Column Definition results in one Column.
- const [columnDefs, setColumnDefs] = useState([
-   {field: 'codigo', filter: true},
-   {field: 'producto',filter: true},
-   {field: 'linea',filter: true},
-   {field: 'valor',filter: true},
-   {field: 'promocion',filter: true}
- ]);
+ let columnDefs = [
+    {field: 'codigo', filter: true},
+    {field: 'producto',filter: true},
+    {field: 'linea',filter: true},
+    {field: 'valor',filter: true},
+    {field: 'promocion',filter: true},
+    {field: 'descuento',filter: true}
+  ];
 
- // DefaultColDef sets props common to all Columns
- const defaultColDef = useMemo( ()=> ({
-     sortable: true
-   }));
 
- // Example of consuming Grid Event
  const cellClickedListener = useCallback( event => {
-   console.log('cellClicked', event);
    document.getElementById('codigo').value = event.data.codigo
    document.getElementById('producto').value = event.data.producto
    document.getElementById('linea').value = event.data.linea
@@ -35,16 +28,14 @@ const PageAdmin = () => {
    document.getElementById('promocion').value = event.data.promocion
    document.getElementById('descuento').value = event.data.descuento
    idProduct = event.data._id
-   console.log('id --- ',idProduct);
  }, []);
 
- // Example load data from sever
  useEffect(() => {
     getData();
  }, []);
 
- // Example using Grid's API
  const buttonListener = useCallback( e => {
+    e.preventDefault();
         console.log('click');
         let codigo = document.getElementById('codigo').value;
         let producto = document.getElementById('producto').value;
@@ -52,15 +43,58 @@ const PageAdmin = () => {
         let valor = document.getElementById('valor').value;
         let promocion = document.getElementById('promocion').value;
         let descuento = document.getElementById('descuento').value;
+        if(idProduct !== ''){
+            let _id = idProduct;
+            const requestOptions = {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo: codigo,producto:producto,linea:linea,valor:valor,promocion:promocion,_id:_id,descuento:descuento })
+            };
+            fetch('http://localhost:3003/actualizar', requestOptions)
+                .then(response => response.json())
+                .then(data => resData(data));
+        }else{
+            alert('Debe seleccionar un registro de la Tabla')
+        }
+
+}, []);
+
+const buttonListenerNew = useCallback( e => {
+    e.preventDefault();
+    let codigo = document.getElementById('codigo').value;
+    let producto = document.getElementById('producto').value;
+    let linea = document.getElementById('linea').value;
+    let valor = document.getElementById('valor').value;
+    let promocion = document.getElementById('promocion').value;
+    let descuento = document.getElementById('descuento').value;
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo: codigo,producto:producto,linea:linea,valor:valor,promocion:promocion,descuento:descuento })
+    };
+    fetch('http://localhost:3003/insert', requestOptions)
+        .then(response => response.json())
+        .then(data => resData(data));
+}, []);
+
+
+const buttonListenerDelete = useCallback( e => {
+    e.preventDefault();
+
+    if(idProduct !== ''){
         let _id = idProduct;
         const requestOptions = {
-            method: 'PUT',
+            method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ codigo: codigo,producto:producto,linea:linea,valor:valor,promocion:promocion,_id:_id,descuento:descuento })
+            body: JSON.stringify({ _id:_id })
         };
-        fetch('http://localhost:3003/actualizar', requestOptions)
+        fetch('http://localhost:3003/delete', requestOptions)
             .then(response => response.json())
             .then(data => resData(data));
+    }else{
+        alert('Debe seleccionar un registro de la Tabla')
+    }
+    
 }, []);
 
 const getData = () => {
@@ -70,76 +104,86 @@ const getData = () => {
 }
 
 const resData = (data) => {
-    if(data.mensaje && data.mensaje === 'el registro se actualizo')
-        getData();
+    if( (data.mensaje && data.mensaje === 'el registro se actualizo') || 
+        (data.mensaje && data.mensaje === 'registro almacenado con exito') ||
+        (data.mensaje && data.mensaje === 'el registro se elimino correctamente')){
+            idProduct = '';
+            getData();
+            document.getElementById('codigo').value = ''
+            document.getElementById('producto').value = ''
+            document.getElementById('linea').value = ''
+            document.getElementById('valor').value = ''
+            document.getElementById('promocion').value = ''
+            document.getElementById('descuento').value = ''
+        }
 
     alert(data.mensaje)
-    console.log('actualizacion estado ---',data);
 }
- if(rowData && rowData.data)
-    console.log('rowData ---',rowData.data);
 
  return (    
    <div>
-
-     <div className="ag-theme-alpine" style={{width: 1000, height: 500}}>
+    <hr></hr>    
+     <div className="ag-theme-alpine" style={{width: '100%', height: 300}}>
 
        <AgGridReact
-           ref={gridRef} // Ref for accessing Grid's API
-
-           rowData={rowData} // Row Data for Rows
-
-           columnDefs={columnDefs} // Column Defs for Columns
-           defaultColDef={defaultColDef} // Default Column Properties
-
-           animateRows={true} // Optional - set to 'true' to have rows animate when sorted
-           rowSelection='multiple' // Options - allows click selection of rows
-
-           onCellClicked={cellClickedListener} // Optional - registering for Grid Event
+           ref={gridRef} 
+           rowData={rowData} 
+           columnDefs={columnDefs} 
+           defaultColDef={true} 
+           animateRows={true} 
+           //rowSelection='multiple' 
+           onCellClicked={cellClickedListener} 
            />
      </div>
+     <hr></hr>
+     <Col sm={{ offset: 8, size: 5 }} >
+        <Button onClick={buttonListenerDelete} color="danger"> Eliminar </Button>
+     </Col>
+     <hr></hr>
+
      <div>
         <Form>
+            <Label for="codigo" sm={5} > Formulario de Administrador </Label>
             <FormGroup row>
                 <Label for="codigo" sm={3} > Código </Label>
                 <Col sm={5}>
-                <Input id="codigo" name="Código" placeholder="with a placeholder" type="text"/>
+                <Input id="codigo" name="Código" placeholder="Código" type="text"/>
                 </Col>
             </FormGroup>
             <FormGroup row>
                 <Label for="producto"sm={3}> Producto </Label>
                 <Col sm={5}>
-                <Input id="producto" name="Producto" placeholder="password placeholder" type="text" />
+                <Input id="producto" name="Producto" placeholder="Producto" type="text" />
                 </Col>
             </FormGroup>
             <FormGroup row>
                 <Label for="linea" sm={3} > Linea </Label>
                 <Col sm={5}>
-                <Input id="linea" name="Linea" placeholder="with a placeholder" type="text"/>
+                <Input id="linea" name="Linea" placeholder="Linea" type="text"/>
                 </Col>
             </FormGroup>  
             <FormGroup row>
                 <Label for="valor" sm={3} > Valor </Label>
                 <Col sm={5}>
-                <Input id="valor" name="Valor" placeholder="with a placeholder" type="text"/>
+                <Input id="valor" name="Valor" placeholder="Valor" type="text"/>
                 </Col>
             </FormGroup>
             <FormGroup row>
                 <Label for="promocion" sm={3} > Promoción </Label>
                 <Col sm={5}>
-                <Input id="promocion" name="Promoción" placeholder="with a placeholder" type="text"/>
+                <Input id="promocion" name="Promoción" placeholder="Promoción" type="text"/>
                 </Col>
             </FormGroup>  
             <FormGroup row>
                 <Label for="descuento" sm={3} > Descuento </Label>
                 <Col sm={5}>
-                <Input id="descuento" name="Descuento" placeholder="with a placeholder" type="text"/>
+                <Input id="descuento" name="Descuento" placeholder="Descuento" type="text"/>
                 </Col>
             </FormGroup>        
             <FormGroup check row >
                 <Col sm={{ offset: 1, size: 5 }} >
                 <Button onClick={buttonListener} color="danger"> Modificar </Button>
-                <Button onClick={buttonListener} color="success"> Crear </Button>
+                <Button onClick={buttonListenerNew} color="success"> Crear </Button>
                 </Col>                
             </FormGroup>
         </Form>
