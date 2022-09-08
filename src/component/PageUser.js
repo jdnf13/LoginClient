@@ -1,5 +1,6 @@
-import React /*{ useState, useEffect }*/ from 'react';
+import React, { Fragment } /*{ useState, useEffect }*/ from 'react';
 import { useNavigate } from "react-router-dom";
+import PageAdmin from './PageAdmin';
 
 
 export default function PageUser(props) {
@@ -11,7 +12,10 @@ export default function PageUser(props) {
         console.log('dataUser----',dataUser);
         if(dataUser.rol === 'admin'){
             return(
-                <div>Pagina Usuario Admin</div>
+                <Fragment>
+                    <h1>Administrador</h1>
+                    <PageAdmin/>
+                </Fragment>
             );
         }else{
             return(
