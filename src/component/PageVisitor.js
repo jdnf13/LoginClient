@@ -31,7 +31,7 @@ const getData = () => {
  return (    
    <div>
     <hr></hr>    
-     <div className="ag-theme-alpine" style={{width: '100%', height: 300}}>
+     <div className="ag-theme-alpine" style={{width: '90%', height: 300,margin:'2rem',marginRight:'3rem'}}>
 
        <AgGridReact
            ref={gridRef} 
