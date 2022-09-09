@@ -114,6 +114,7 @@ const resData = (data) => {
             document.getElementById('valor').value = ''
             document.getElementById('promocion').value = 'No'
             document.getElementById('descuento').value = ''
+            getData();
         }
 
     alert(data.mensaje)
